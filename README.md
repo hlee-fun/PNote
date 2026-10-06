@@ -8,6 +8,8 @@ PNote 是一个自托管的个人笔记与项目展示站点。文章用 Markdow
 - 演示站：https://note.hlee.fun（演示站可能存在版本滞后！）
 - 文档：[中文](README-zh.md) · [English](README-en.md)
 
+> **注意**：正在加紧修改已知问题，尚未发布可用版本。
+
 ## 快速开始
 
 需要 Docker（带 `docker compose` 插件）。

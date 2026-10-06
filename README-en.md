@@ -8,6 +8,8 @@ so there is no need to install Python, Node, or any database on the host machine
 
 Demo site: https://note.hlee.fun (Note: the demo site may be running an outdated version!)
 
+> **Note**: Known issues are being fixed on an urgent basis; no usable version has been released yet.
+
 ## Features
 
 ### Writing articles
@@ -24,6 +26,7 @@ Demo site: https://note.hlee.fun (Note: the demo site may be running an outdated
 - Publish releases and package the source directory as a zip for download
 - One cloud Git bare repo per project, supporting `git clone` / `git push` (smart HTTP, admin only, HTTPS enforced)
 - One-way sync to GitHub / GitLab / Gitea / Gitee / Bitbucket / self-hosted, with dry-run and mirror push
+  (Only GitHub has been tested so far; the other providers are still being tested)
 
 ### Site
 

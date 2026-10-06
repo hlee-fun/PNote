@@ -7,6 +7,8 @@ PNote 是一个自托管的个人内容站点：用 Markdown 写文章，同时�
 
 演示站：https://note.hlee.fun（演示站可能存在版本滞后！）
 
+> **注意**：正在加紧修改已知问题，尚未发布可用版本。
+
 ## 功能
 
 ### 写文章
@@ -23,6 +25,7 @@ PNote 是一个自托管的个人内容站点：用 Markdown 写文章，同时�
 - 打 Release，把源码目录打成 zip 提供下载
 - 每个项目对应一个云端 Git 裸仓，支持 `git clone` / `git push`（smart HTTP，仅管理员，强制 HTTPS）
 - 单向同步到 GitHub / GitLab / Gitea / Gitee / Bitbucket / 自建，支持 dry-run 与镜像推送
+  （目前仅测试过 GitHub，其他仓库尚在加紧测试中）
 
 ### 站点
 
