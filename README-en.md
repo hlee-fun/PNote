@@ -6,7 +6,8 @@ letting visitors browse the source code online, download releases, and letting t
 The frontend and backend are packaged into a single Docker image with PostgreSQL and Redis built in,
 so there is no need to install Python, Node, or any database on the host machine.
 
-Demo site: https://note.hlee.fun (Note: the demo site may be running an outdated version!)
+Demo site: https://note.hlee.fun
+(Note: the demo site may be running an outdated version!)
 
 > **Note**: Known issues are being fixed on an urgent basis; no usable version has been released yet.
 

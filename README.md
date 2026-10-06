@@ -5,7 +5,8 @@ PNote 是一个自托管的个人笔记与项目展示站点。文章用 Markdow
 
 前后端打进同一个 Docker 镜像，镜像内自带 PostgreSQL 和 Redis，启动后不需要再装任何依赖。
 
-- 演示站：https://note.hlee.fun（演示站可能存在版本滞后！）
+- 演示站：https://note.hlee.fun
+- （演示站可能存在版本滞后！）
 - 文档：[中文](README-zh.md) · [English](README-en.md)
 
 > **注意**：正在加紧修改已知问题，尚未发布可用版本。
