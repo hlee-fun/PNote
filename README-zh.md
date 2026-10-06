@@ -6,6 +6,7 @@ PNote 是一个自托管的个人内容站点：用 Markdown 写文章，同时�
 前后端打包在一个 Docker 镜像里，镜像内已内置 PostgreSQL 和 Redis，宿主机不需要安装 Python、Node 或数据库。
 
 演示站：https://note.hlee.fun
+
 （演示站可能存在版本滞后！）
 
 > **注意**：正在加紧修改已知问题，尚未发布可用版本。

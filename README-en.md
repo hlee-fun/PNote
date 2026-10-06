@@ -7,6 +7,7 @@ The frontend and backend are packaged into a single Docker image with PostgreSQL
 so there is no need to install Python, Node, or any database on the host machine.
 
 Demo site: https://note.hlee.fun
+
 (Note: the demo site may be running an outdated version!)
 
 > **Note**: Known issues are being fixed on an urgent basis; no usable version has been released yet.
