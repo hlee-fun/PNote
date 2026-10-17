@@ -30,4 +30,4 @@ docker compose down            # 停止，数据卷保留
 
 数据存放在 `pnote-data`（数据库与 Redis）和 `pnote-uploads`（上传文件、项目源码、Git 仓库、备份）两个命名卷里，删除容器不会丢。
 
-更完整的说明见 [README-zh.md](README-zh.md)。
+更完整的说明见 [中文](README-zh.md) · [English](README-en.md)。
