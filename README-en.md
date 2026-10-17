@@ -10,7 +10,6 @@ Demo site: https://note.hlee.fun
 
 > (Note: the demo site may be running an outdated version!)
 
-> **Note**: Known issues are being fixed on an urgent basis; no usable version has been released yet.
 
 ## Features
 
@@ -137,6 +136,15 @@ so restoring must use the same `SECRET_KEY`. There is currently no scheduled bac
 follow the `README.txt` inside the zip and restore manually.
 
 ## Upgrade
+
+```bash
+
+docker pull hleefun/pnote:latest
+
+docker pull ghcr.io/hlee-fun/pnote:latest
+
+```
+
 
 ```bash
 docker pull

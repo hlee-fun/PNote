@@ -9,7 +9,7 @@ PNote 是一个自托管的个人内容站点：用 Markdown 写文章，同时�
 
 > （演示站可能存在版本滞后！）
 
-> **注意**：正在加紧修改已知问题，尚未发布可用版本。
+
 
 ## 功能
 
@@ -61,6 +61,14 @@ PNote 是一个自托管的个人内容站点：用 Markdown 写文章，同时�
 
 `SECRET_KEY`、`INIT_PASSWORD`、`CORS_ORIGINS`、`PUBLIC_BASE_URL` 四项必填，缺失会直接启动失败。
 直接改 `docker-compose.yml` 里的 `environment` 即可，各参数含义见「配置」。
+
+```bash
+
+docker pull hleefun/pnote:latest
+
+docker pull ghcr.io/hlee-fun/pnote:latest
+
+```
 
 ```bash
 # 修改`docker-compose.yml`对应参数
