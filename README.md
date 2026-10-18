@@ -22,7 +22,7 @@ Requires Docker (with the `docker compose` plugin).
 ```bash
 docker pull hleefun/pnote:latest
 docker pull ghcr.io/hlee-fun/pnote:latest
-# 修改`docker-compose.yml`对应参数
+# 修改`docker-compose.yml`对应参数 / Edit the corresponding parameters in docker-compose.yml
 docker compose up -d                               # 启动（后台）/ start (detached)
 ```
 
