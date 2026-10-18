@@ -92,4 +92,4 @@ The interpretation and application of this Disclaimer, and any dispute arising f
 
 ---
 
-*This Disclaimer is a general template and does not constitute legal advice. Consult a qualified attorney for legal risks.*
+

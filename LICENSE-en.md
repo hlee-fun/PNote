@@ -100,4 +100,3 @@ The interpretation of this Agreement and any dispute arising from it shall be go
 
 ---
 
-*This Agreement is a general template and does not constitute legal advice. Consult a qualified attorney for formal commercial use or external distribution.*
