@@ -1,85 +1,104 @@
 # PNote
 
-PNote 是一个自托管的个人内容站点：用 Markdown 写文章，同时把自己的项目挂上去做展示，
-访客可以在线浏览源码、下载 Release，管理员还能直接 `git clone` / `git push`。
+> **写字的地方，也是放代码的地方。**
+> 一个自托管的个人内容站点：用 Markdown 写文章，同时把自己的项目挂在自己的域名下——访客能在线读源码、下 Release，你能直接 `git clone` / `git push`。
 
-前后端打包在一个 Docker 镜像里，镜像内已内置 PostgreSQL 和 Redis，宿主机不需要安装 Python、Node 或数据库。
+演示站：https://note.hlee.fun （内容为虚构样例，版本可能滞后）
 
-演示站：https://note.hlee.fun
+后端、前端、PostgreSQL、Redis 与前端产物**全部打进同一个 Docker 镜像**。宿主机不需要安装 Python、Node 或任何数据库，也不需要留存源码——你要照看的只有一个 `docker-compose.yml` 和两个数据卷。
 
-> （演示站可能存在版本滞后！）
+---
 
+## 为什么是它
 
+很多人做过同样的事：博客部署在一个平台，代码托管在另一个平台，图床在第三个，统计在第四个。每一个都是独立，加起来就是一个人在维护五套系统——而且它们的可用性、延迟和规则，都不由你决定。平台的状态页更新一条时间线，你只能刷新，不能参与；读者的第一句话往往变成「你怎么停更了」。
 
-## 功能
+PNote 把这件事收回来：**同一个域名下，文章和项目仓库是同一个站点、同一套后台、同一个数据库。**
 
-### 写文章
+它也不要求你为了自主而退出公众视野。每个项目背后是一个真正的 git 裸仓，源在你这里，同时可以**单向同步推送到主流公开托管平台或任意自建 Git 服务**（支持 dry-run 预演与镜像推送）。公共平台那份照常被人搜到、照常有人给你点 star；不同的是，它从「唯一的一份」变成了「可随时重建的副本」。
 
-- Markdown 编辑：表格、任务列表、脚注、代码高亮（Pygments）、KaTeX 公式、Mermaid 图、自动目录
-- 草稿与定时发布，服务端自动保存，每次修改留快照，可随时回滚
-- 标签、多级分类（自引用父子）、置顶、浏览量与匿名点赞
-- 批量导入导出（带 frontmatter 的 Markdown zip）
+它准备做多人协作，暂时不做评论区。它把一个人安静写东西和放作品这件事，做得尽量完整。
 
-### 展示项目
+---
 
-- 项目卡片列表，支持按语言筛选和关键字搜索
-- README 渲染，源码目录在线浏览与下载
-- 打 Release，把源码目录打成 zip 提供下载
-- 每个项目对应一个云端 Git 裸仓，支持 `git clone` / `git push`（smart HTTP，仅管理员，强制 HTTPS）
-- 单向同步到 GitHub / GitLab / Gitea / Gitee / Bitbucket / 自建，支持 dry-run 与镜像推送
-  （目前仅测试过 GitHub，其他仓库尚在加紧测试中）
+## 六件它做得比较实的事
 
-### 站点
+**1 · 单镜像自举。** 一个镜像装下整套站点，`docker compose up -d` 起站，站点与 API 同源同端口。镜像里**没有任何兜底密钥**——必填项没填就直接拒绝启动，不会悄悄用弱值跑起来。
 
-- 后台控制台：仪表盘（PV/UV、发文热力图、趋势）、文件管理、备份、审计日志、分类、设置
-- 界面支持简体中文、繁体中文、英文，后台可控制启用哪些语言以及默认语言
-- 全站搜索（PostgreSQL 全文检索 + ILIKE，中文走 ILIKE）
-- RSS 2.0 / Atom 订阅，sitemap.xml 与 robots.txt
-- 站点开关：整站关闭（可附说明）、隐私站点（仅开放关于页）、公告横幅
-- 法律页：条款、隐私、Cookie 说明，正文可在后台编辑
+**2 · 真能用的云端 Git 仓库。** 裸仓是唯一数据源，站点上的目录树是它的 checkout。本地 `git push`，站上的源码就是最新的；管理员全权，强制 HTTPS，对外不暴露 git 协议。仓库有公开 / 私有 / 草稿三态，非公开对访客一律 404，草稿可定时转公开。
 
-### 安全
+**3 · 单向同步到公共平台。** 6 类目标（主流公开托管平台 + 任意自建 Git 服务）。推之前能 dry-run 看清会推什么；推送本身被归入敏感操作，需要二次认证，API 通道要求 admin scope。
 
-- 两步验证（TOTP）与一次性恢复码
-- 敏感操作（改密、下载备份、关闭 2FA、同步推送）需二次认证
-- API Token（read / write / admin，可设过期时间），走 `X-API-Key` 头
-- 会话管理：在线会话列表、按设备吊销、全部下线
-- 审计日志、CSP、HSTS、防盗链白名单、上传白名单与 magic bytes 校验
+**4 · 主题系统。** 明暗三态与颜色层正交，6 套内置配色，或者**只填一个品牌色**，其余十余个色档自动派生——文字对比度按 WCAG AA 由构造保证，不靠肉眼调。第三方主题包走沙箱解压 + 变量白名单 + 草稿→启用→一键回滚；高级 CSS 的危险写法在服务端清洗后入库，且后台界面一律不应用它。
 
-### AI 辅助（可选）
+**5 · 安全是默认状态，不是插件列表。** 两步验证与一次性恢复码；改密码、下载备份、关闭 2FA、同步推送四类操作强制二次认证；API Token 分 read / write / admin 三级可设过期；会话可按设备吊销或全部下线；审计日志支持动作 / IP / 时间多维筛选。面向公网的一层有 CSP、HSTS、图片防盗链白名单、上传白名单 + magic bytes 校验、Markdown 服务端与前端双层消毒。容器本身只读根文件系统、`cap_drop ALL` 后按需最小授权、进程与资源限额。
 
-- 生成摘要、标题、续写、中译英（结果只展示可复制，不覆盖正文）
-- 支持 Anthropic 与 OpenAI 两种协议，API Key 加密入库
-- 在后台填 API Key，不配置也不影响其他功能
-- AI辅助性能与接入模型性能有关
+**6 · 后台闭环。** PV / UV、发文热力图、访问趋势、下载计数（匿名按 IP + 10 分钟去重）；文件管理、分类、侧栏自定义卡片、法律页正文都在后台改；备份可手动触发也可设每天 / 每周 / 每月定时，产物含数据库导出与每个裸仓的 `git bundle`。
 
-## 安装
+---
 
-部署方式只有 Docker Compose 一种：`docker compose` 
+## 功能一览
 
-前置条件：Docker（含 `docker compose` 插件），Linux / macOS / Windows(WSL2) 都可以。
+**写作**
+Markdown 表格、任务列表、脚注；服务端代码高亮；KaTeX 公式与 Mermaid 图表按需加载；自动目录。草稿与定时发布、服务端自动保存、每次修改留快照可回滚。标签、多级分类（自引用父子）、置顶、浏览量与匿名点赞。批量导入导出为带 frontmatter 的 Markdown zip。
 
-`SECRET_KEY`、`INIT_PASSWORD`、`CORS_ORIGINS`、`PUBLIC_BASE_URL` 四项必填，缺失会直接启动失败。
-直接改 `docker-compose.yml` 里的 `environment` 即可，各参数含义见「配置」。
+**项目展示**
+项目卡片列表，按语言筛选与关键字搜索；README 渲染；源码目录在线浏览与单文件下载计数；Release 打包下载；每个项目一个云端 git 裸仓，支持 `git clone` / `git push`；单向同步到外部 Git 平台，支持 dry-run 与镜像推送；仓库三态可见性。
+
+**站点**
+后台控制台（仪表盘 / 文件管理 / 备份 / 审计日志 / 分类 / 设置）；简体中文、繁体中文、英文三语界面，后台可控制启用范围与默认语言；全站全文检索（文章 + 仓库分组返回，`/` 快捷键聚焦）；RSS 2.0 / Atom / sitemap.xml / robots.txt；站点开关（整站关闭可附说明、隐私站点仅开放关于页、公告横幅）；条款 / 隐私 / Cookie 政策页正文后台可编辑。
+
+**AI 辅助（可选，不配置不影响任何其他功能）**
+生成摘要、生成标题、续写、中译英——结果只展示可复制，**不会覆盖你的正文**。兼容两种主流模型接口协议，API Key 加密入库，在后台填写即可。效果与所接入模型的能力有关。
+
+---
+
+## 部署
+
+前置条件只有一个：Docker（含 `docker compose` 插件），Linux / macOS / Windows(WSL2) 皆可。
+
+### 1. 从仓库取一份 `docker-compose.yml`
+
+不需要 clone 整个仓库，也不需要源码——把仓库根目录的 `docker-compose.yml` 这**一个文件**下载到你的服务器上就够了。
 
 ```bash
-
-docker pull hleefun/pnote:latest
-
-docker pull ghcr.io/hlee-fun/pnote:latest
-
+# 在仓库页面直接下载 docker-compose.yml 单个文件
 ```
 
+### 2. 改四项必填
+
+打开这个文件，定位到 `services.pnote.environment`，把四项填好。文件里默认写成 `${SECRET_KEY:?...}` 这种「从宿主环境取值」的形式，两种写法都可以：要么改成字面值，要么保持原样、在 shell 里导出同名变量。
+
+改完之后 `environment` 这一段像这样（**示意值**）：
+
+```yaml
+    environment:
+      SECRET_KEY: "3f9a1c7d84e2b6a05c11df73a9e4b28c6d0f51a3b7c92e48a1d6f0b3c5e87a21"  # openssl rand -hex 32 的输出
+      INIT_USERNAME: "admin"                                                            # 可省略，默认 admin
+      INIT_PASSWORD: "N0te-My-First-Passphrase"                                          # 首次建账用，建账后可删
+      CORS_ORIGINS: "https://note.example.com"
+      PUBLIC_BASE_URL: "https://note.example.com"
+      ALLOWED_HOSTS: "note.example.com,www.note.example.com"                             # 可选，多域名写这里
+```
+
+文件里其余部分——`read_only`、`cap_drop` / `cap_add`、`no-new-privileges`、`pids_limit` / `mem_limit` / `cpus`、`tmpfs`、`healthcheck`、日志轮转——是交付基线，**照原样留着，不要精简**。
+
+| 变量 | 是什么 | 怎么填 |
+| --- | --- | --- |
+| `SECRET_KEY` | JWT 与数据加密密钥 | `openssl rand -hex 32` 生成，别复用、别提交到仓库 |
+| `INIT_PASSWORD` | 初始管理员口令（仅首次建库生效） | 自己定；**镜像不含默认口令**，用了弱口令登录后会被强制修改 |
+| `CORS_ORIGINS` | 允许的来源 | 你的域名，逗号分隔，**不允许通配符 `*`** |
+| `PUBLIC_BASE_URL` | 站点规范地址 | **单个** `https://note.example.com`，用于 feed / sitemap 绝对链接，并作为 Host 与 CSRF 来源白名单；多域名写进 `ALLOWED_HOSTS` |
+
+上面的 `note.example.com` 与那串密钥都是示意值，替换成你自己的即可。四项之外都有合理默认或可在后台配置，起站时不需要动。放在反向代理后面时，建议开启 `TRUSTED_PROXY` 并正确配置 `PROXY_PEER`，否则拿不到真实客户端 IP，会影响限流与 UV 去重。
+
+### 3. 起站
+
 ```bash
-# 修改`docker-compose.yml`对应参数
 docker compose up -d
 ```
 
-容器启动脚本会依次拉起 PostgreSQL、Redis 和后端服务，并创建初始管理员。
-
-### 访问地址
-
-前后端同源，都走 8000 端口：
+容器启动脚本会依次拉起 PostgreSQL、Redis 和后端服务，并创建初始管理员（用户名 `INIT_USERNAME`，默认 `admin`）。
 
 | 入口 | 地址 |
 | --- | --- |
@@ -87,83 +106,50 @@ docker compose up -d
 | 后台 | http://localhost:8000/admin |
 | 健康检查 | http://localhost:8000/api/health |
 
-初始账号为 `INIT_USERNAME`（默认 `admin`），口令由 `INIT_PASSWORD` 指定，
-**镜像不内置任何默认口令**；若使用了弱口令，登录后会被强制要求修改。
-
-### 常用命令
-
 ```bash
 docker compose logs -f pnote   # 实时日志
 docker compose down            # 停止并移除容器，数据卷保留
-docker compose up -d --build   # 更新代码后重新构建
 ```
 
-## 配置
+> 当前版本仍为**测试版本**：功能与接口可能继续调整，也难免有你先踩到的坑。欢迎在个人站和试验环境里试用，更期待你的意见与建议——每一条反馈都会被认真看。
 
-改 `docker-compose.yml` 的 `environment` 即可。上线前需要留意的参数：
+---
 
-| 变量 | 说明 | 默认值 |
-| --- | --- | --- |
-| `SECRET_KEY` | JWT 与数据加密用的密钥，必须换成随机长串 | 无，必填 |
-| `INIT_USERNAME` | 初始管理员用户名，仅首次建库生效 | `admin` |
-| `INIT_PASSWORD` | 初始管理员口令，仅首次建库生效 | 无，必填 |
-| `CORS_ORIGINS` | 允许的来源，逗号分隔，不允许通配符 | 无，必填 |
-| `PUBLIC_BASE_URL` | 站点规范地址，用于 feed / sitemap 绝对链接，并作为 Host 与 CSRF 来源白名单 | 无，必填 |
-| `ALLOWED_HOSTS` | 额外放行的 Host，逗号分隔 | 空 |
-| `COOKIE_SECURE` | 用 HTTPS 时设为 `true` | `true` |
-| `ENABLE_DOCS` | 是否开放 `/docs`、`/redoc` | `false` |
-| `SECURITY_CONTACT` | 安全联系邮箱，用于 `/.well-known/security.txt`，留空则该路径返回 404 | 空 |
-| `TRUSTED_PROXY` | 反向代理后采信 `X-Forwarded-For` | `false` |
-| `TRUSTED_HOPS` | 信任的代理跳数 | `1` |
-| `PROXY_PEER` | 受信代理的对端地址，支持 CIDR；端口映射模式下通常是 docker 网桥网关（如 `172.17.0.1`） | `127.0.0.1` |
-| `ENABLE_GIT` | Git 仓库与同步功能总开关 | `true` |
-| `LLM_API_KEY` / `LLM_BASE_URL` / `LLM_MODEL` | AI 配置，作为后台设置的兜底 | 空 / `https://api.openai.com/v1` / `gpt-4o-mini` |
+## 数据、备份与升级
 
-## 数据
-
-数据放在两个命名卷：
+数据只在两个命名卷里，`docker compose down` 不会删除它们（只有 `down -v` 会）：
 
 | 卷 | 内容 |
 | --- | --- |
 | `pnote-data` | PostgreSQL 数据目录、Redis 落盘 |
 | `pnote-uploads` | 上传的图片、项目源码、Git 裸仓、备份归档 |
 
-`docker compose down` 不会删除卷，只有 `docker compose down -v` 才会。
+**备份**在后台「数据备份」页触发，支持每天 / 每周 / 每月定时策略、执行时间与时区、按份数保留、范围多选（数据库 / 上传文件 / 云仓库 / Redis），并保留站内运行记录。产物是 zip，含 `pg_dump` 导出、上传文件、每个裸仓的 `git bundle`、统计键导出和一份恢复指引。下载备份需要二次认证 + admin scope 的 Token；恢复必须使用同一份 `SECRET_KEY`。
 
-备份在后台「备份与迁移」页面手动触发（限流 3 次/小时），产物是 `uploads/backups/` 下的 zip，包含：
-
-- `data/postgres-dump.sql`：`pg_dump` 导出
-- `uploads/`：上传文件，排除 `backups/`、`git/`、`.tmp/`，以及可由裸仓重建的展示工作树
-- `git/<slug>.bundle`：每个裸仓一个 `git bundle`
-- `redis/stats-export.json`：Redis 里的统计键
-- `README.txt`：恢复指引
-
-下载备份需要二次认证 + admin scope 的 Token。备份里含加密令牌，恢复时必须使用同一份 `SECRET_KEY`。
-目前没有定时备份和一键恢复，需按 zip 内 `README.txt` 手工操作。
-
-## 升级
+**升级**：
 
 ```bash
-docker pull
-docker compose up -d --build
+docker compose pull && docker compose up -d
 ```
 
-数据库和上传目录都在卷里，不受影响。新增的表和字段会在启动时自动补齐，不需要手动跑迁移。
+数据库与上传内容都在卷里，不受影响；新增的表和字段在启动时自动补齐，不需要手动跑迁移。
 
-## 技术栈
+**迁移走**：文章批量导出为带 frontmatter 的 Markdown zip；仓库就是标准 git 裸仓，`git clone` 全带走。数据不绑定私有格式。
 
-后端 FastAPI + SQLAlchemy 2 + PostgreSQL + Redis，Python 3.13，运行时依赖 17 个。
-Markdown 由 `markdown-it-py` + Pygments 渲染、nh3 消毒。
+---
 
-前端 Vue 3 + TypeScript + Vite，`md-editor-v3` 编辑，按需加载 KaTeX 与 Mermaid，DOMPurify 二次消毒。
-Node 只在构建镜像时用到。
+## 已知限制（如实列出）
 
-## 已知限制
+- 定位是**单管理员站点**，没有注册和多用户协作；没有评论系统，访客只能匿名点赞。
+- 「联动协作」（在自己部署内多人共同完成一个私有项目）目前处于**方案设想阶段，尚未实施**，无时间表。
+- 备份支持定时触发，但**没有一键恢复**。
+- 向量语义搜索**默认关闭**，开启需配置真实向量模型并通过验收才对访客开放。
+- PlantUML 图表需自备渲染服务，并通过前端构建期变量指定；官方镜像未注入该变量，默认降级为提示框。
+- 同步目标按平台逐个验证，目前主要跑通其中一类主流公开托管平台，其余仍在验证中。
+- 未配置 `PUBLIC_BASE_URL` / `SITE_HOST` / `ALLOWED_HOSTS` 时，Host 与 CSRF 来源校验整层放行并告警，feed / sitemap 绝对链接可能被 Host 头投毒。
+- 限流由代码层实现（按真实 IP / 账号维度），无独立环境变量可调；git smart HTTP 请求体上限 2GB 为硬编码。
+- 交付形态只有单容器 + docker-compose，不涉及多节点与集群编排。
 
-- 定位是单管理员站点，没有注册和多用户协作。
-- 没有评论系统。
-- PlantUML 图表需要自己部署渲染服务，并通过前端构建期变量 `VITE_PLANTUML_SERVER` 指定；
-  官方镜像构建时未注入该变量，默认降级为提示框。
-- 备份仅支持手动触发，没有定时备份与一键恢复。
-- 放在反向代理后面时，建议开启 `TRUSTED_PROXY` 并正确配置 `PROXY_PEER`，
-  否则拿不到真实客户端 IP，会影响限流和 UV 去重。
+---
+
+> **你的域名，值得放你自己的东西。**
