@@ -16,7 +16,7 @@ services:
     # image: ghcr.io/hlee-fun/pnote:latest
     container_name: pnote
     ports:
-      - "8000:8000"   
+      - "8000:8000"   # 前端与 API 同源，容器内均为 8000 / same origin, 8000 inside the container
     environment:
       # 无兜底默认值：宿主未提供时 compose 直接报错，杜绝镜像内置弱密钥。
       # No fallback: compose aborts when the host omits it, so no baked-in secret can survive.
@@ -26,18 +26,16 @@ services:
       DATABASE_URL: "postgresql+psycopg2://pnote:pnote@127.0.0.1:5432/pnote"
       FRONTEND_DIST: "/app/frontend/dist"
       CORS_ORIGINS: "${CORS_ORIGINS:?必须设置 CORS_ORIGINS（如 https://note.example.com）}"
-      # 规范站点地址：feed/sitemap/robots 绝对链接 + Host 与 CSRF 来源白名单
-      # Canonical URL: absolute links for feed/sitemap/robots, plus the Host and CSRF allowlist
       PUBLIC_BASE_URL: "${PUBLIC_BASE_URL:?必须设置 PUBLIC_BASE_URL（如 https://note.example.com）}"
       ALLOWED_HOSTS: "${ALLOWED_HOSTS:-}"
       COOKIE_SECURE: "${COOKIE_SECURE:-true}"
+      EXPOSE_VERSION: "false"
       ENABLE_DOCS: "false"
-      # /.well-known/security.txt 的联系邮箱；留空该路径返回 404。
-      # Contact email for /.well-known/security.txt; empty = 404.
       SECURITY_CONTACT: "${SECURITY_CONTACT:-}"
       TRUSTED_PROXY: "${TRUSTED_PROXY:-true}"
       TRUSTED_HOPS: "${TRUSTED_HOPS:-1}"
       PROXY_PEER: "${PROXY_PEER:-}"
+      PNOTE_LICENSE_FILE: ""
       SECRET_ENC_KEY: "${SECRET_ENC_KEY:-}"
     volumes:
       - pnote-data:/app/data
